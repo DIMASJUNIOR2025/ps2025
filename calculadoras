@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Científica Avançada</title>
     <style>
-        :root {
+         :root {
             --primary-color: #5e35b1;
             --secondary-color: #3949ab;
             --accent-color: #7c4dff;
@@ -15,19 +16,24 @@
             --light-bg: #1e1e1e;
             --button-hover: rgba(255, 255, 255, 0.08);
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            background-color: var(--dark-bg);
+            min-height: 100vh;
             color: var(--text-color);
+            background-color: #080d1c;
+            background-image: linear-gradient(rgba(7, 11, 29, 0.58), rgba(9, 14, 35, 0.42)), url("https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=2000&q=85");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
-
+        
         #calc {
             width: 100%;
             min-height: 100vh;
@@ -36,22 +42,25 @@
             align-items: center;
             padding: 20px;
         }
-
+        
         #content {
-            background-color: var(--light-bg);
-            border-radius: 16px;
+            background: rgba(20, 24, 43, 0.76);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 20px;
             padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             width: 100%;
             max-width: 360px;
             overflow: hidden;
         }
-
+        
         #output {
             margin-bottom: 20px;
             position: relative;
         }
-
+        
         #history {
             color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
@@ -62,7 +71,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-
+        
         #res {
             width: 100%;
             height: 60px;
@@ -75,13 +84,13 @@
             outline: none;
             caret-color: var(--accent-color);
         }
-
+        
         .btn-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
         }
-
+        
         .btn {
             background-color: var(--primary-color);
             color: var(--text-color);
@@ -96,38 +105,37 @@
             justify-content: center;
             user-select: none;
         }
-
+        
         .btn:hover {
             background-color: var(--secondary-color);
             transform: translateY(-2px);
         }
-
+        
         .btn:active {
             transform: translateY(0);
         }
-
+        
         .btn-operator {
             background-color: var(--accent-color);
         }
-
+        
         .btn-func {
             background-color: #303f9f;
         }
-
+        
         .btn-equals {
             background-color: var(--accent-color);
             grid-column: span 1;
         }
-
+        
         .btn-clear {
             background-color: var(--error-color);
         }
-
+        
         @media (max-width: 400px) {
             #content {
                 padding: 16px;
             }
-            
             .btn {
                 height: 50px;
                 font-size: 18px;
@@ -135,6 +143,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="calc">
         <div id="content">
@@ -148,27 +157,27 @@
                     <button type="button" class="btn btn-func" onclick="addFunc('Math.cos(')">cos</button>
                     <button type="button" class="btn btn-func" onclick="addFunc('Math.tan(')">tan</button>
                     <button type="button" class="btn btn-clear" onclick="clearAll()">AC</button>
-                    
+
                     <button type="button" class="btn btn-func" onclick="addFunc('Math.log(')">log</button>
                     <button type="button" class="btn btn-func" onclick="addFunc('Math.sqrt(')">√</button>
                     <button type="button" class="btn btn-func" onclick="addFunc('Math.PI')">π</button>
                     <button type="button" class="btn" onclick="backspace()">⌫</button>
-                    
+
                     <button type="button" class="btn" onclick="addToExpression('7')">7</button>
                     <button type="button" class="btn" onclick="addToExpression('8')">8</button>
                     <button type="button" class="btn" onclick="addToExpression('9')">9</button>
                     <button type="button" class="btn btn-operator" onclick="addToExpression('/')">÷</button>
-                    
+
                     <button type="button" class="btn" onclick="addToExpression('4')">4</button>
                     <button type="button" class="btn" onclick="addToExpression('5')">5</button>
                     <button type="button" class="btn" onclick="addToExpression('6')">6</button>
                     <button type="button" class="btn btn-operator" onclick="addToExpression('*')">×</button>
-                    
+
                     <button type="button" class="btn" onclick="addToExpression('1')">1</button>
                     <button type="button" class="btn" onclick="addToExpression('2')">2</button>
                     <button type="button" class="btn" onclick="addToExpression('3')">3</button>
                     <button type="button" class="btn btn-operator" onclick="addToExpression('-')">−</button>
-                    
+
                     <button type="button" class="btn" onclick="addToExpression('0')">0</button>
                     <button type="button" class="btn" onclick="addToExpression('.')">.</button>
                     <button type="button" class="btn btn-equals" onclick="calculate()">=</button>
@@ -213,10 +222,10 @@
                     .replace(/×/g, '*')
                     .replace(/÷/g, '/')
                     .replace(/\^/g, '**');
-                
+
                 // Usa Function para evitar eval direto (mais seguro)
                 const result = new Function('return ' + safeExpression)();
-                
+
                 historyElement.textContent = history + ' =';
                 currentExpression = result.toString();
                 updateDisplay();
@@ -252,7 +261,7 @@
         // Suporte a teclado
         document.addEventListener('keydown', (e) => {
             const key = e.key;
-            
+
             if (/[0-9]/.test(key)) {
                 addToExpression(key);
             } else if (['+', '-', '*', '/', '.', '^'].includes(key)) {
@@ -269,4 +278,5 @@
         });
     </script>
 </body>
+
 </html>
