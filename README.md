@@ -1,272 +1,90 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Científica Avançada</title>
-    <style>
-        :root {
-            --primary-color: #5e35b1;
-            --secondary-color: #3949ab;
-            --accent-color: #7c4dff;
-            --text-color: #ffffff;
-            --error-color: #ff5252;
-            --dark-bg: #121212;
-            --light-bg: #1e1e1e;
-            --button-hover: rgba(255, 255, 255, 0.08);
-        }
+# 🧮 Calculadora Científica Avançada
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+Uma aplicação web moderna, responsiva e intuitiva de uma calculadora científica. Desenvolvida apenas com tecnologias nativas da web (HTML5, CSS3 e JavaScript puro), ela oferece suporte tanto para operações aritméticas básicas quanto para funções científicas avançadas, com um visual elegante em modo escuro (Dark Mode).
 
-        body {
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-        }
+---
 
-        #calc {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+## ✨ Funcionalidades
 
-        #content {
-            background-color: var(--light-bg);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 360px;
-            overflow: hidden;
-        }
+- **Operações Básicas:** Adição (`+`), subtração (`-`), multiplicação (`*`), divisão (`/`) e exponenciação (`^` via teclado).
+- **Funções Científicas:**
+  - Trigonometria: Seno ($\sin$), Cosseno ($\cos$) e Tangente ($\tan$).
+  - Logaritmo natural ($\ln$ / `Math.log`).
+  - Raiz quadrada ($\sqrt{x}$).
+  - Constante Pi ($\pi$).
+- **Histórico de Operações:** Exibe a expressão anterior logo acima do resultado atual.
+- **Suporte Completo ao Teclado:** Digite expressões, apague caracteres ou calcule resultados diretamente pelo teclado físico.
+- **Tratamento de Erros:** Feedback visual imediato caso uma expressão matemática inválida seja inserida.
+- **Design Responsivo e Moderno:** Interface em *Dark Mode* com variáveis CSS, transições suaves e adaptação para telas menores (celulares).
 
-        #output {
-            margin-bottom: 20px;
-            position: relative;
-        }
+---
 
-        #history {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            height: 18px;
-            text-align: right;
-            margin-bottom: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+## 🚀 Tecnologias Utilizadas
 
-        #res {
-            width: 100%;
-            height: 60px;
-            background-color: transparent;
-            border: none;
-            color: var(--text-color);
-            font-size: 32px;
-            text-align: right;
-            padding: 8px;
-            outline: none;
-            caret-color: var(--accent-color);
-        }
+O projeto foi construído em um único arquivo (*Single-File Application*), utilizando:
 
-        .btn-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
+- **HTML5:** Estruturação semântica dos elementos e visor da calculadora.
+- **CSS3:** Estilização moderna utilizando *CSS Grid* para os botões, *Flexbox* para o alinhamento na tela, e *CSS Variables* (`:root`) para fácil manutenção da paleta de cores.
+- **JavaScript (ES6+):** Lógica de construção da expressão matemática, manipulação do DOM, eventos de teclado e avaliação segura das expressões utilizando o construtor `Function()`.
 
-        .btn {
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            border: none;
-            border-radius: 12px;
-            height: 60px;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-        }
+---
 
-        .btn:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
+## 🛠️ Como Executar o Projeto
 
-        .btn:active {
-            transform: translateY(0);
-        }
+Por ser uma aplicação web estática contida em um único arquivo, você não precisa instalar dependências ou configurar servidores complexos.
 
-        .btn-operator {
-            background-color: var(--accent-color);
-        }
+1. Faça o download ou copie o código para um arquivo chamado `index.html`.
+2. Dê um duplo clique no arquivo `index.html` para abri-lo em qualquer navegador web moderno (Google Chrome, Firefox, Edge, Safari, etc.).
+3. Pronto! A calculadora já estará funcionando.
 
-        .btn-func {
-            background-color: #303f9f;
-        }
+---
 
-        .btn-equals {
-            background-color: var(--accent-color);
-            grid-column: span 1;
-        }
+## ⌨️ Atalhos de Teclado
 
-        .btn-clear {
-            background-color: var(--error-color);
-        }
+Além de clicar nos botões da interface, você pode utilizar o teclado do seu computador para agilizar os cálculos:
 
-        @media (max-width: 400px) {
-            #content {
-                padding: 16px;
-            }
-            
-            .btn {
-                height: 50px;
-                font-size: 18px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div id="calc">
-        <div id="content">
-            <form>
-                <div id="output">
-                    <div id="history"></div>
-                    <input type="text" id="res" disabled>
-                </div>
-                <div class="btn-grid">
-                    <button type="button" class="btn btn-func" onclick="addFunc('Math.sin(')">sin</button>
-                    <button type="button" class="btn btn-func" onclick="addFunc('Math.cos(')">cos</button>
-                    <button type="button" class="btn btn-func" onclick="addFunc('Math.tan(')">tan</button>
-                    <button type="button" class="btn btn-clear" onclick="clearAll()">AC</button>
-                    
-                    <button type="button" class="btn btn-func" onclick="addFunc('Math.log(')">log</button>
-                    <button type="button" class="btn btn-func" onclick="addFunc('Math.sqrt(')">√</button>
-                    <button type="button" class="btn btn-func" onclick="addFunc('Math.PI')">π</button>
-                    <button type="button" class="btn" onclick="backspace()">⌫</button>
-                    
-                    <button type="button" class="btn" onclick="addToExpression('7')">7</button>
-                    <button type="button" class="btn" onclick="addToExpression('8')">8</button>
-                    <button type="button" class="btn" onclick="addToExpression('9')">9</button>
-                    <button type="button" class="btn btn-operator" onclick="addToExpression('/')">÷</button>
-                    
-                    <button type="button" class="btn" onclick="addToExpression('4')">4</button>
-                    <button type="button" class="btn" onclick="addToExpression('5')">5</button>
-                    <button type="button" class="btn" onclick="addToExpression('6')">6</button>
-                    <button type="button" class="btn btn-operator" onclick="addToExpression('*')">×</button>
-                    
-                    <button type="button" class="btn" onclick="addToExpression('1')">1</button>
-                    <button type="button" class="btn" onclick="addToExpression('2')">2</button>
-                    <button type="button" class="btn" onclick="addToExpression('3')">3</button>
-                    <button type="button" class="btn btn-operator" onclick="addToExpression('-')">−</button>
-                    
-                    <button type="button" class="btn" onclick="addToExpression('0')">0</button>
-                    <button type="button" class="btn" onclick="addToExpression('.')">.</button>
-                    <button type="button" class="btn btn-equals" onclick="calculate()">=</button>
-                    <button type="button" class="btn btn-operator" onclick="addToExpression('+')">+</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <script>
-        let currentExpression = '';
-        let history = '';
-        const resElement = document.getElementById('res');
-        const historyElement = document.getElementById('history');
+| Tecla | Ação na Calculadora |
+| :--- | :--- |
+| `0` a `9` | Insere os números correspondentes |
+| `+`, `-`, `*`, `/` | Insere os operadores matemáticos básicos |
+| `^` | Insere operador de potência (convertido para `**`) |
+| `.` | Insere o ponto decimal |
+| `(` e `)` | Abre e fecha parênteses (essencial para fechar funções científicas) |
+| `Enter` | Calcula o resultado da expressão (`=`) |
+| `Backspace` | Apaga o último caractere digitado (`⌫`) |
+| `Escape` (Esc) | Limpa todo o visor e o histórico (`AC`) |
 
-        // Adiciona valores à expressão atual
-        function addToExpression(value) {
-            currentExpression += value;
-            updateDisplay();
-        }
+> **💡 Dica de Uso:** Ao clicar em funções como `sin`, `cos`, `tan`, `log` ou `√`, a calculadora adiciona automaticamente a abertura do parêntese — por exemplo, `Math.sqrt(`. Lembre-se de fechar o parêntese `)` utilizando o seu teclado após digitar o número desejado, ou deixe como último elemento simples antes de calcular!
 
-        // Adiciona funções matemáticas
-        function addFunc(func) {
-            if (func === 'Math.PI') {
-                currentExpression += Math.PI.toString();
-            } else {
-                currentExpression += func;
-            }
-            updateDisplay();
-        }
+---
 
-        // Atualiza o display
-        function updateDisplay() {
-            resElement.value = currentExpression;
-        }
+## 🎨 Personalização de Cores
 
-        // Calcula o resultado
-        function calculate() {
-            try {
-                history = currentExpression;
-                // Substitui símbolos para avaliação segura
-                const safeExpression = currentExpression
-                    .replace(/×/g, '*')
-                    .replace(/÷/g, '/')
-                    .replace(/\^/g, '**');
-                
-                // Usa Function para evitar eval direto (mais seguro)
-                const result = new Function('return ' + safeExpression)();
-                
-                historyElement.textContent = history + ' =';
-                currentExpression = result.toString();
-                updateDisplay();
-            } catch (error) {
-                handleError();
-            }
-        }
+O projeto utiliza variáveis CSS logo no início da tag `<style>`. Se desejar alterar o tema da calculadora, basta modificar os valores no bloco `:root`:
 
-        // Limpa tudo
-        function clearAll() {
-            currentExpression = '';
-            history = '';
-            historyElement.textContent = '';
-            updateDisplay();
-        }
+```css
+:root {
+    --primary-color: #5e35b1;   /* Cor padrão dos botões numéricos */
+    --secondary-color: #3949ab; /* Cor dos botões ao passar o mouse (hover) */
+    --accent-color: #7c4dff;    /* Cor dos operadores e botão de igual */
+    --text-color: #ffffff;      /* Cor dos textos e números */
+    --error-color: #ff5252;     /* Cor do botão de limpar (AC) */
+    --dark-bg: #121212;         /* Cor de fundo da página */
+    --light-bg: #1e1e1e;        /* Cor de fundo do corpo da calculadora */
+}
+```
 
-        // Backspace
-        function backspace() {
-            currentExpression = currentExpression.slice(0, -1);
-            updateDisplay();
-        }
+---
 
-        // Tratamento de erro
-        function handleError() {
-            resElement.value = 'Erro';
-            historyElement.textContent = '';
-            currentExpression = '';
-            setTimeout(() => {
-                resElement.value = '';
-            }, 1000);
-        }
+## 📌 Possíveis Melhorias Futuras
 
-        // Suporte a teclado
-        document.addEventListener('keydown', (e) => {
-            const key = e.key;
-            
-            if (/[0-9]/.test(key)) {
-                addToExpression(key);
-            } else if (['+', '-', '*', '/', '.', '^'].includes(key)) {
-                addToExpression(key);
-            } else if (key === 'Enter') {
-                calculate();
-            } else if (key === 'Escape') {
-                clearAll();
-            } else if (key === 'Backspace') {
-                backspace();
-            } else if (key === '(' || key === ')') {
-                addToExpression(key);
-            }
-        });
-    </script>
-</body>
-</html>
+Caso queira expandir este projeto no futuro, aqui estão algumas ideias:
+- Adicionar botões visuais na interface para abrir `(` e fechar `)` parênteses, facilitando o uso de funções científicas em dispositivos móveis.
+- Implementar alternância entre Radianos e Graus para as funções trigonométricas.
+- Criar uma aba lateral para armazenar uma lista com todo o histórico de cálculos da sessão.
+
+---
+
+## 📄 Licença
+
+Este projeto é de código aberto e pode ser utilizado livremente para fins de estudo, portfólio ou projetos pessoais.
