@@ -1,2 +1,272 @@
-# ps2025
-# ps2025
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Científica Avançada</title>
+    <style>
+        :root {
+            --primary-color: #5e35b1;
+            --secondary-color: #3949ab;
+            --accent-color: #7c4dff;
+            --text-color: #ffffff;
+            --error-color: #ff5252;
+            --dark-bg: #121212;
+            --light-bg: #1e1e1e;
+            --button-hover: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+        }
+
+        #calc {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #content {
+            background-color: var(--light-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 360px;
+            overflow: hidden;
+        }
+
+        #output {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        #history {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            height: 18px;
+            text-align: right;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #res {
+            width: 100%;
+            height: 60px;
+            background-color: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 32px;
+            text-align: right;
+            padding: 8px;
+            outline: none;
+            caret-color: var(--accent-color);
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 12px;
+            height: 60px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-operator {
+            background-color: var(--accent-color);
+        }
+
+        .btn-func {
+            background-color: #303f9f;
+        }
+
+        .btn-equals {
+            background-color: var(--accent-color);
+            grid-column: span 1;
+        }
+
+        .btn-clear {
+            background-color: var(--error-color);
+        }
+
+        @media (max-width: 400px) {
+            #content {
+                padding: 16px;
+            }
+            
+            .btn {
+                height: 50px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="calc">
+        <div id="content">
+            <form>
+                <div id="output">
+                    <div id="history"></div>
+                    <input type="text" id="res" disabled>
+                </div>
+                <div class="btn-grid">
+                    <button type="button" class="btn btn-func" onclick="addFunc('Math.sin(')">sin</button>
+                    <button type="button" class="btn btn-func" onclick="addFunc('Math.cos(')">cos</button>
+                    <button type="button" class="btn btn-func" onclick="addFunc('Math.tan(')">tan</button>
+                    <button type="button" class="btn btn-clear" onclick="clearAll()">AC</button>
+                    
+                    <button type="button" class="btn btn-func" onclick="addFunc('Math.log(')">log</button>
+                    <button type="button" class="btn btn-func" onclick="addFunc('Math.sqrt(')">√</button>
+                    <button type="button" class="btn btn-func" onclick="addFunc('Math.PI')">π</button>
+                    <button type="button" class="btn" onclick="backspace()">⌫</button>
+                    
+                    <button type="button" class="btn" onclick="addToExpression('7')">7</button>
+                    <button type="button" class="btn" onclick="addToExpression('8')">8</button>
+                    <button type="button" class="btn" onclick="addToExpression('9')">9</button>
+                    <button type="button" class="btn btn-operator" onclick="addToExpression('/')">÷</button>
+                    
+                    <button type="button" class="btn" onclick="addToExpression('4')">4</button>
+                    <button type="button" class="btn" onclick="addToExpression('5')">5</button>
+                    <button type="button" class="btn" onclick="addToExpression('6')">6</button>
+                    <button type="button" class="btn btn-operator" onclick="addToExpression('*')">×</button>
+                    
+                    <button type="button" class="btn" onclick="addToExpression('1')">1</button>
+                    <button type="button" class="btn" onclick="addToExpression('2')">2</button>
+                    <button type="button" class="btn" onclick="addToExpression('3')">3</button>
+                    <button type="button" class="btn btn-operator" onclick="addToExpression('-')">−</button>
+                    
+                    <button type="button" class="btn" onclick="addToExpression('0')">0</button>
+                    <button type="button" class="btn" onclick="addToExpression('.')">.</button>
+                    <button type="button" class="btn btn-equals" onclick="calculate()">=</button>
+                    <button type="button" class="btn btn-operator" onclick="addToExpression('+')">+</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        let currentExpression = '';
+        let history = '';
+        const resElement = document.getElementById('res');
+        const historyElement = document.getElementById('history');
+
+        // Adiciona valores à expressão atual
+        function addToExpression(value) {
+            currentExpression += value;
+            updateDisplay();
+        }
+
+        // Adiciona funções matemáticas
+        function addFunc(func) {
+            if (func === 'Math.PI') {
+                currentExpression += Math.PI.toString();
+            } else {
+                currentExpression += func;
+            }
+            updateDisplay();
+        }
+
+        // Atualiza o display
+        function updateDisplay() {
+            resElement.value = currentExpression;
+        }
+
+        // Calcula o resultado
+        function calculate() {
+            try {
+                history = currentExpression;
+                // Substitui símbolos para avaliação segura
+                const safeExpression = currentExpression
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/\^/g, '**');
+                
+                // Usa Function para evitar eval direto (mais seguro)
+                const result = new Function('return ' + safeExpression)();
+                
+                historyElement.textContent = history + ' =';
+                currentExpression = result.toString();
+                updateDisplay();
+            } catch (error) {
+                handleError();
+            }
+        }
+
+        // Limpa tudo
+        function clearAll() {
+            currentExpression = '';
+            history = '';
+            historyElement.textContent = '';
+            updateDisplay();
+        }
+
+        // Backspace
+        function backspace() {
+            currentExpression = currentExpression.slice(0, -1);
+            updateDisplay();
+        }
+
+        // Tratamento de erro
+        function handleError() {
+            resElement.value = 'Erro';
+            historyElement.textContent = '';
+            currentExpression = '';
+            setTimeout(() => {
+                resElement.value = '';
+            }, 1000);
+        }
+
+        // Suporte a teclado
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            
+            if (/[0-9]/.test(key)) {
+                addToExpression(key);
+            } else if (['+', '-', '*', '/', '.', '^'].includes(key)) {
+                addToExpression(key);
+            } else if (key === 'Enter') {
+                calculate();
+            } else if (key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === '(' || key === ')') {
+                addToExpression(key);
+            }
+        });
+    </script>
+</body>
+</html>
